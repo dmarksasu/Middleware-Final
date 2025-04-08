@@ -1,12 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 const apiRoutes = require('./routes/api');
 const errorHandler = require('./middleware/errorHandler');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/auth');
 
 dotenv.config();
 
 const app = express();
+
+// Set up EJS as the templating engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));  // Set the views directory
+
+// Add the auth routes to the app
+app.use('/', authRoutes);
 
 // Middleware
 app.use(express.json());
@@ -16,6 +26,9 @@ app.use('/api', apiRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
+
+// DB Connection & Server Start
+connectDB();
 
 // DB Connection & Server Start
 const PORT = process.env.PORT || 5000;
