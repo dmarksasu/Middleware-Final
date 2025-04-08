@@ -19,7 +19,9 @@ app.set('views', path.join(__dirname, 'views'));  // Set the views directory
 app.use('/', authRoutes);
 
 // Middleware
-app.use(express.json());
+app.use(express.json()); // for JSON bodies (like Postman)
+app.use(express.urlencoded({ extended: true })); // for form submissions
+
 
 // Routes
 app.use('/api', apiRoutes);
@@ -28,10 +30,14 @@ app.use('/api', apiRoutes);
 app.use(errorHandler);
 
 // DB Connection & Server Start
-connectDB();
+//connectDB();
 
-// DB Connection & Server Start
-const PORT = process.env.PORT || 5000;
+const cors = require('cors');
+app.use(cors());
+
+
+//DB Connection & Server Start
+const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');

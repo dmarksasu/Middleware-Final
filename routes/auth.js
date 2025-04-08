@@ -3,6 +3,7 @@ const router = express.Router();
 const { register, login } = require('../controllers/authController');
 const authMiddleware = require('../middleware/auth');
 
+
 // Home route (index)
 router.get('/', (req, res) => {
   res.render('index');
