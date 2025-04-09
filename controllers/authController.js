@@ -44,34 +44,38 @@ exports.register = async (req, res) => {
 // Login function
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("Received email:", email);
-  console.log("Received password:", password);
-
+  
   try {
     const user = await User.findOne({ email });
-    console.log("User found:", user);
-
+    
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    // Debugging the stored password hash
-    console.log("Stored password hash:", user.password);
-
     // Check if the password matches the hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch);
-
+    
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // If password is correct, generate a JWT token (or session)
-    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
-    res.status(200).json({ message: "Login successful", token });
+    // If password is correct, generate a JWT token
+    // Inside the login method in authController.js
+    const token = jwt.sign({ userId: user._id, username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+
+    // Set the token as a cookie in the response
+    res.cookie('authToken', token, { 
+      httpOnly: true,  // Make sure the cookie is only accessible via HTTP(S)
+      secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
+      maxAge: 3600000  // 1 hour
+    });
+
+    res.status(200).json({ message: "Login successful" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
