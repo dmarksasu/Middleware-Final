@@ -1,17 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { testEndpoint } = require('../controllers/apiController');
-const { register, login } = require('../controllers/authController');
+const authController = require('../controllers/authController'); // Correct import here
 const authMiddleware = require('../middleware/auth');
-const authController = require('../controllers/authController');
+const User = require('../models/User'); 
 
+// Public routes
+router.post('/register', authController.register);  // Registration route
+router.post('/login', authController.login);        // Login route
 
-// Public
-router.post('/register', authController.register); // no middleware here
-router.post('/login', authController.login);       // also open
-
-
-// Protected
-router.get('/test', authMiddleware, testEndpoint);
+// Protected routes
+router.get('/test', authMiddleware, testEndpoint);   // Protected test route
 
 module.exports = router;

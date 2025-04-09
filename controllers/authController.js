@@ -41,22 +41,37 @@ exports.register = async (req, res) => {
   }
 };
 
+// Login function
 exports.login = async (req, res) => {
+  const { email, password } = req.body;
+  console.log("Received email:", email);
+  console.log("Received password:", password);
+
   try {
-    const { username, password } = req.body;
+    const user = await User.findOne({ email });
+    console.log("User found:", user);
 
-    const user = await User.findOne({ username });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    // Debugging the stored password hash
+    console.log("Stored password hash:", user.password);
 
-    const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    // Check if the password matches the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", isMatch);
 
-    res.json({ token });
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // If password is correct, generate a JWT token (or session)
+    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+    res.status(200).json({ message: "Login successful", token });
+
   } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
