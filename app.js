@@ -42,5 +42,6 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('MongoDB connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    console.log(`To test the IFT 458 REST App Click Or Type: http://localhost:5000`);
   })
   .catch(err => console.error(err));
